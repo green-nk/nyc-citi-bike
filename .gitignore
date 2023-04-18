@@ -1,5 +1,28 @@
-.DS_Store
+# Static files
 data/
+_backup/
+
+# Auto-generated files from Python
 **/__pycache__/
 **/.ipynb_checkpoints/
-_backup/
+
+# Auto-generated files from OS
+.DS_Store
+
+# Terraform state files
+*.tfstate
+*.tfstate.backup
+
+# .terraform directories
+**/.terraform/*
+
+# Auto-generated files from Terraform
+*.tfvars
+*.plan
+*.tfplan
+*.log
+*.out
+.terraform.lock.hcl
+
+# Crash logs from Terraform
+crash.log
