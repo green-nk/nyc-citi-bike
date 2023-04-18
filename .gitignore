@@ -26,3 +26,7 @@ _backup/
 
 # Crash logs from Terraform
 crash.log
+
+# Airflow configuration files
+.env
+logs
