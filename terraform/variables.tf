@@ -32,7 +32,7 @@ locals {
   ssh_connection = "${var.username}:${file("${var.ssh_key_filename}.pub")}"
 }
 
-variable "service_account" {
+variable "service_account_email" {
   description = "Service account email to be set to VM instances"
 }
 
