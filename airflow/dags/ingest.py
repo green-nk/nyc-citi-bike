@@ -1,5 +1,6 @@
 import datetime
 from airflow.decorators import dag
+from airflow.models import Variable
 from airflow.operators.bash import BashOperator
 from airflow.providers.google.cloud.transfers.local_to_gcs import LocalFilesystemToGCSOperator
 
@@ -8,27 +9,28 @@ from airflow.providers.google.cloud.transfers.local_to_gcs import LocalFilesyste
     dag_id="ingest_nyc_citi_bike", 
     schedule_interval="@monthly", 
     start_date=datetime.datetime(2022, 1, 31), 
-    catchup=False
+    catchup=False, 
 )
 def ingest_nyc_citi_bike():
     """
     NYC Citi Bike Data Ingestion.
     """
-    src = "https://s3.amazonaws.com/tripdata/201907-citibike-tripdata.csv.zip"
-    out = "/opt/airflow/data/raw/201907-citibike-tripdata.csv.zip"
-    
+    DATA_FILE = "201907-citibike-tripdata"
+    BUCKET_NAME = Variable.get("gcs_bucket")
+
+    src = f"https://s3.amazonaws.com/tripdata/{DATA_FILE}.csv.zip"
+    out = f"/opt/airflow/data/raw/{DATA_FILE}.csv.zip"
     extract_nyc_citi_bike = BashOperator(
         task_id="extract_nyc_citi_bike", 
-        bash_command=f"wget -O {out} {src}"
+        bash_command=f"/opt/airflow/dags/scripts/bash/extract.sh {src} {out}"
     )
 
-    bucket_name = "89c4cf55ff5c1b59-hopeful-vim-384700"
-    raw_destination_blob_name = "raw/201907-citibike-tripdata.csv.zip"
+    raw_destination_blob = f"raw/{DATA_FILE}.csv.zip"
     nyc_citi_bike_to_raw_data_lake = LocalFilesystemToGCSOperator(
         task_id="nyc_citi_bike_to_raw_data_lake", 
         src=out, 
-        dst=raw_destination_blob_name, 
-        bucket=bucket_name
+        dst=raw_destination_blob, 
+        bucket=BUCKET_NAME
     )
 
     extract_nyc_citi_bike >> nyc_citi_bike_to_raw_data_lake
