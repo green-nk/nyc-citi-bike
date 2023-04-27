@@ -4,6 +4,7 @@ from airflow.decorators import dag, task
 from airflow.models import Variable
 from airflow.operators.bash import BashOperator
 from airflow.providers.google.cloud.transfers.local_to_gcs import LocalFilesystemToGCSOperator
+from airflow.providers.google.cloud.transfers.gcs_to_bigquery import GCSToBigQueryOperator
 from utils import raw_transfrom
 
 
@@ -66,6 +67,18 @@ def ingest_nyc_citi_bike():
         bucket=BUCKET_NAME
     )
     
-    extract_nyc_citi_bike >> nyc_citi_bike_to_raw_data_lake >> transform_raw_nyc_citi_bike >> nyc_citi_bike_to_staging_data_lake
+    # Load preprocessed data from a data lake to development area in a data warehouse
+    nyc_citi_bike_to_dev_data_warehouse = GCSToBigQueryOperator(
+        task_id="nyc_citi_bike_to_dev_data_warehouse", 
+        bucket=BUCKET_NAME, 
+        source_objects=[staging_dst_blob], 
+        destination_project_dataset_table="hopeful-vim-384700.development.bike_trips", 
+        source_format="PARQUET", 
+        create_disposition="CREATE_IF_NEEDED", 
+        write_disposition="WRITE_TRUNCATE", 
+        autodetect=True
+    )
+
+    extract_nyc_citi_bike >> nyc_citi_bike_to_raw_data_lake >> transform_raw_nyc_citi_bike >> nyc_citi_bike_to_staging_data_lake >> nyc_citi_bike_to_dev_data_warehouse
 
 nyc_citi_bike = ingest_nyc_citi_bike()
