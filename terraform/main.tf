@@ -120,3 +120,21 @@ resource "google_storage_bucket_object" "data_lake_staging" {
   name = "staging/"
   content = "Staging folder to be stored data after some cleaning"
 }
+
+# Setup BQ: Create dev dataset
+resource "google_bigquery_dataset" "dev_dataset" {
+  dataset_id = "development"
+  location = var.region
+}
+
+# Setup BQ: Create staging dataset
+resource "google_bigquery_dataset" "staging_dataset" {
+  dataset_id = "staging"
+  location = var.region
+}
+
+# Setup BQ: Create production dataset
+resource "google_bigquery_dataset" "prod_dataset" {
+  dataset_id = "production"
+  location = var.region
+}
