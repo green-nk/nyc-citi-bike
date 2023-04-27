@@ -4,3 +4,7 @@ USER root
 RUN apt-get update && \
     apt-get install -yqq wget unzip vim
 USER airflow
+
+ADD requirements.txt .
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
