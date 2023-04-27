@@ -1,8 +1,10 @@
 import datetime
-from airflow.decorators import dag
+import pandas as pd
+from airflow.decorators import dag, task
 from airflow.models import Variable
 from airflow.operators.bash import BashOperator
 from airflow.providers.google.cloud.transfers.local_to_gcs import LocalFilesystemToGCSOperator
+from utils import raw_transfrom
 
 
 @dag(
@@ -25,14 +27,33 @@ def ingest_nyc_citi_bike():
         bash_command=f"/opt/airflow/dags/scripts/bash/extract.sh {src} {out}"
     )
 
-    raw_destination_blob = f"raw/{DATA_FILE}.csv.zip"
+    raw_dst_blob = f"raw/{DATA_FILE}.csv.zip"
     nyc_citi_bike_to_raw_data_lake = LocalFilesystemToGCSOperator(
         task_id="nyc_citi_bike_to_raw_data_lake", 
         src=out, 
-        dst=raw_destination_blob, 
+        dst=raw_dst_blob, 
         bucket=BUCKET_NAME
     )
 
-    extract_nyc_citi_bike >> nyc_citi_bike_to_raw_data_lake
+    @task()
+    def apply_raw_transformation(src, out, schema_filepath):
+        """
+        Raw transformation into staging area.
+        """
+        print(f"Loading file from {src}...")
+        raw_df = pd.read_csv(src)
+        
+        print(f"Applying transformation to {src}...")
+        df = raw_transfrom(raw_df, schema_filepath)
+        
+        print(f"Saving file to {out}...")
+        df.to_parquet(out, index=False, compression="gzip")
+    
+    src = f"gs://{BUCKET_NAME}/{raw_dst_blob}"
+    out = f"/opt/airflow/data/staging/{DATA_FILE}.parquet.gz"
+    schema_filepath = "/opt/airflow/data/config/schema.json"
+    transform_raw_nyc_citi_bike = apply_raw_transformation(src, out, schema_filepath)
+    
+    extract_nyc_citi_bike >> nyc_citi_bike_to_raw_data_lake >> transform_raw_nyc_citi_bike
 
 nyc_citi_bike = ingest_nyc_citi_bike()
