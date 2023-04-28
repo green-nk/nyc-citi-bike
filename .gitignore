@@ -30,3 +30,8 @@ crash.log
 # Airflow configuration files
 .env
 logs
+
+# dbt configuration files
+profiles
+target
+dbt_packages
