@@ -35,3 +35,6 @@ logs
 profiles
 target
 dbt_packages
+
+# Key files
+.google
