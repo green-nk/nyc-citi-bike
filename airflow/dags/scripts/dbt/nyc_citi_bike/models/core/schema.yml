@@ -1,0 +1,12 @@
+version: 2
+
+models:
+  - name: monthly_bike_usage
+    description: Average trip duration in minutes per round on each bike on monthly basis.
+    columns:
+      - name: bike_id
+        description: Bike ID to identify an individual bike.
+        tests:
+          - not_null
+      - name: avg_bike_usage
+        description: Average trip duration in minutes per round on each bike on monthly basis.
