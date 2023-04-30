@@ -20,6 +20,7 @@ def ingest_nyc_citi_bike():
     """
     DATA_FILE = "201907-citibike-tripdata"
     BUCKET_NAME = Variable.get("gcs_bucket")
+    PROJECT_ID = Variable.get("project_id")
 
     # Extract data from a source
     src = f"https://s3.amazonaws.com/tripdata/{DATA_FILE}.csv.zip"
@@ -55,7 +56,7 @@ def ingest_nyc_citi_bike():
     
     src = f"gs://{BUCKET_NAME}/{raw_dst_blob}"
     out = f"/opt/airflow/data/staging/{DATA_FILE}.parquet.gz"
-    schema_filepath = "/opt/airflow/data/config/schema.json"
+    schema_filepath = "/opt/airflow/dags/scripts/schema/schema.json"
     transform_raw_nyc_citi_bike = apply_raw_transformation(src, out, schema_filepath)
 
     # Load preprocessed data back into staging area in a data lake
@@ -67,18 +68,26 @@ def ingest_nyc_citi_bike():
         bucket=BUCKET_NAME
     )
     
-    # Load preprocessed data from a data lake to development area in a data warehouse
-    nyc_citi_bike_to_dev_data_warehouse = GCSToBigQueryOperator(
-        task_id="nyc_citi_bike_to_dev_data_warehouse", 
+    # Load preprocessed data from a data lake to a data warehouse
+    dataset = "development"
+    table_name = "bike_trips"
+    dst_table = f"{PROJECT_ID}.{dataset}.{table_name}"
+    nyc_citi_bike_to_data_warehouse = GCSToBigQueryOperator(
+        task_id="nyc_citi_bike_to_data_warehouse", 
         bucket=BUCKET_NAME, 
         source_objects=[staging_dst_blob], 
-        destination_project_dataset_table="hopeful-vim-384700.development.bike_trips", 
+        destination_project_dataset_table=dst_table, 
         source_format="PARQUET", 
         create_disposition="CREATE_IF_NEEDED", 
         write_disposition="WRITE_TRUNCATE", 
-        autodetect=True
+        autodetect=True, 
+        time_partitioning={
+            "field": "start_time", 
+            "type": "DAY"
+        }, 
+        cluster_fields=["bike_id", "user_type"]
     )
 
-    extract_nyc_citi_bike >> nyc_citi_bike_to_raw_data_lake >> transform_raw_nyc_citi_bike >> nyc_citi_bike_to_staging_data_lake >> nyc_citi_bike_to_dev_data_warehouse
+    extract_nyc_citi_bike >> nyc_citi_bike_to_raw_data_lake >> transform_raw_nyc_citi_bike >> nyc_citi_bike_to_staging_data_lake >> nyc_citi_bike_to_data_warehouse
 
 nyc_citi_bike = ingest_nyc_citi_bike()
