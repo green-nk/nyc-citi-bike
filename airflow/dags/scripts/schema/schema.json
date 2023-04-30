@@ -1,0 +1,17 @@
+{
+    "trip_duration": "Int64", 
+    "start_time": "datetime64[ns]", 
+    "end_time": "datetime64[ns]", 
+    "start_station_id": "Int64", 
+    "start_station_name": "str", 
+    "start_station_latitude": "float", 
+    "start_station_longitude": "float", 
+    "end_station_id": "Int64", 
+    "end_station_name": "str", 
+    "end_station_latitude": "float", 
+    "end_station_longitude": "float", 
+    "bike_id": "Int64", 
+    "user_type": "str", 
+    "birth_year": "Int64", 
+    "gender": "Int64"
+}
