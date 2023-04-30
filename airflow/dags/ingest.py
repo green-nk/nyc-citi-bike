@@ -80,12 +80,7 @@ def ingest_nyc_citi_bike():
         source_format="PARQUET", 
         create_disposition="CREATE_IF_NEEDED", 
         write_disposition="WRITE_TRUNCATE", 
-        autodetect=True, 
-        time_partitioning={
-            "field": "start_time", 
-            "type": "DAY"
-        }, 
-        cluster_fields=["bike_id", "user_type"]
+        autodetect=True
     )
 
     extract_nyc_citi_bike >> nyc_citi_bike_to_raw_data_lake >> transform_raw_nyc_citi_bike >> nyc_citi_bike_to_staging_data_lake >> nyc_citi_bike_to_data_warehouse
