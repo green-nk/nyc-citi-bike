@@ -1,7 +1,24 @@
 import json
+import os
+from airflow.models import Variable
+
+def get_config():
+    """
+    Get airflow configuration variables.
+    """
+    config = {
+        "airflow_home": os.getenv("AIRFLOW_HOME"), 
+        "project_id": Variable.get("project_id"), 
+        "bucket_name": Variable.get("gcs_bucket"), 
+        "bq_dataset": Variable.get("bq_dataset"), 
+        "bq_dst_table_name": Variable.get("bq_dst_table_name"), 
+        "dbt_project": Variable.get("dbt_project"), 
+    }
+    
+    return config
 
 
-def raw_transfrom(raw_df, schema_filepath):
+def raw_transfrom(raw_df, schema_file):
     """
     Transform raw data
     - Rename column names
@@ -11,7 +28,7 @@ def raw_transfrom(raw_df, schema_filepath):
     
     # trip_duration, start_station_id, end_station_id, bike_id, birth_year and gender can be an int
     # a float is acceptable for now as to preserve null value
-    schema = load_json(schema_filepath)
+    schema = load_json(schema_file)
     df = df.astype(schema)
 
     return df
