@@ -30,6 +30,7 @@ crash.log
 # Airflow configuration files
 .env
 logs
+variables.json
 
 # dbt configuration files
 profiles
