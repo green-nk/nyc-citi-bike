@@ -20,11 +20,12 @@ def get_config():
     return config
 
 
-def read_csv_from_zip(src, data_file):
+def read_csv_from_zip(src):
     """
     Read spcificed csv file from zip.
     """
     with zipfile.ZipFile(src, 'r') as fzip:
+        data_file = src.split('/')[-1].split('.')[0]
         with fzip.open(f"{data_file}.csv") as f:
             df = pd.read_csv(f)
 

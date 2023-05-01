@@ -71,12 +71,12 @@ def ingest_nyc_citi_bike():
 
     # Preprocess raw data into staging data
     @task()
-    def apply_raw_transformation(src, out, data_file, schema_file):
+    def apply_raw_transformation(src, out, schema_file):
         """
         Raw transformation into staging area.
         """
         print(f"Loading file from {src}...")
-        raw_df = read_csv_from_zip(src, data_file)
+        raw_df = read_csv_from_zip(src)
         
         print(f"Applying transformation to {src}...")
         df = raw_transfrom(raw_df, schema_file)
@@ -87,7 +87,7 @@ def ingest_nyc_citi_bike():
     src = out
     out = f"{airflow_home}/data/{staging_dst_blob}"
     schema_file = f"{airflow_home}/dags/scripts/schema/schema.json"
-    transform_raw_nyc_citi_bike = apply_raw_transformation(src, out, data_file, schema_file)
+    transform_raw_nyc_citi_bike = apply_raw_transformation(src, out, schema_file)
 
     # Load preprocessed data back into staging area in a data lake
     nyc_citi_bike_to_staging_data_lake = LocalFilesystemToGCSOperator(
@@ -138,8 +138,9 @@ def ingest_nyc_citi_bike():
         bash_command=f"{script_filepath}/model.sh {fact_model_file} {profiles_dir} {project_dir}"
     )
 
-    data_file >> extract_nyc_citi_bike >> nyc_citi_bike_to_raw_data_lake >> \
-    transform_raw_nyc_citi_bike >> nyc_citi_bike_to_staging_data_lake >> \
+    data_file >> extract_nyc_citi_bike >> nyc_citi_bike_to_raw_data_lake
+
+    extract_nyc_citi_bike >> transform_raw_nyc_citi_bike >> nyc_citi_bike_to_staging_data_lake >> \
     nyc_citi_bike_to_data_warehouse >> connection_to_data_warehouse >> \
     model_stg_bike_trips >> test_stg_bike_trips >> model_fact_bike_trips
 
