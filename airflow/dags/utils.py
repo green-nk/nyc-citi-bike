@@ -1,5 +1,7 @@
 import json
 import os
+import pandas as pd
+import zipfile
 from airflow.models import Variable
 
 def get_config():
@@ -16,6 +18,17 @@ def get_config():
     }
     
     return config
+
+
+def read_csv_from_zip(src, data_file):
+    """
+    Read spcificed csv file from zip.
+    """
+    with zipfile.ZipFile(src, 'r') as fzip:
+        with fzip.open(f"{data_file}.csv") as f:
+            df = pd.read_csv(f)
+
+    return df
 
 
 def raw_transfrom(raw_df, schema_file):

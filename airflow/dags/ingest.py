@@ -1,16 +1,16 @@
 import datetime
-import pandas as pd
 from airflow.decorators import dag, task
 from airflow.operators.bash import BashOperator
 from airflow.providers.google.cloud.transfers.local_to_gcs import LocalFilesystemToGCSOperator
 from airflow.providers.google.cloud.transfers.gcs_to_bigquery import GCSToBigQueryOperator
-from utils import get_config, raw_transfrom
+from utils import get_config, read_csv_from_zip, raw_transfrom
 
 
 @dag(
     dag_id="ingest_nyc_citi_bike", 
     schedule_interval="@monthly", 
     start_date=datetime.datetime(2019, 2, 1), 
+    end_date=datetime.datetime(2020, 1, 1), 
     catchup=False
 )
 def ingest_nyc_citi_bike():
@@ -51,7 +51,7 @@ def ingest_nyc_citi_bike():
 
     # Get data file path
     raw_dst_blob = f"raw/{data_file}.csv.zip"
-    staging_dst_blob = f"staging/{data_file}.parquet.gz"
+    staging_dst_blob = f"staging/{data_file}.parquet.snappy"
 
     # Extract data from a source
     src = f"https://s3.amazonaws.com/tripdata/{data_file}.csv.zip"
@@ -71,23 +71,23 @@ def ingest_nyc_citi_bike():
 
     # Preprocess raw data into staging data
     @task()
-    def apply_raw_transformation(src, out, schema_file):
+    def apply_raw_transformation(src, out, data_file, schema_file):
         """
         Raw transformation into staging area.
         """
         print(f"Loading file from {src}...")
-        raw_df = pd.read_csv(src)
+        raw_df = read_csv_from_zip(src, data_file)
         
         print(f"Applying transformation to {src}...")
         df = raw_transfrom(raw_df, schema_file)
         
         print(f"Saving file to {out}...")
-        df.to_parquet(out, index=False, compression="gzip")
+        df.to_parquet(out, index=False, compression="snappy")
     
-    src = f"gs://{bucket_name}/{raw_dst_blob}"
+    src = out
     out = f"{airflow_home}/data/{staging_dst_blob}"
     schema_file = f"{airflow_home}/dags/scripts/schema/schema.json"
-    transform_raw_nyc_citi_bike = apply_raw_transformation(src, out, schema_file)
+    transform_raw_nyc_citi_bike = apply_raw_transformation(src, out, data_file, schema_file)
 
     # Load preprocessed data back into staging area in a data lake
     nyc_citi_bike_to_staging_data_lake = LocalFilesystemToGCSOperator(
@@ -106,7 +106,7 @@ def ingest_nyc_citi_bike():
         destination_project_dataset_table=dst_table, 
         source_format="PARQUET", 
         create_disposition="CREATE_IF_NEEDED", 
-        write_disposition="WRITE_TRUNCATE", 
+        write_disposition="WRITE_APPEND", 
         autodetect=True
     )
 
