@@ -83,6 +83,37 @@ def ingest_nyc_citi_bike():
         autodetect=True
     )
 
-    extract_nyc_citi_bike >> nyc_citi_bike_to_raw_data_lake >> transform_raw_nyc_citi_bike >> nyc_citi_bike_to_staging_data_lake >> nyc_citi_bike_to_data_warehouse
+    # Connection checking for transformation on a data warehouse
+    profiles_dir = "/opt/airflow/dags/scripts/dbt/profiles"
+    project_dir = "/opt/airflow/dags/scripts/dbt/nyc_citi_bike"
+    connection_to_data_warehouse = BashOperator(
+        task_id="connection_to_data_warehouse", 
+        bash_command=f"/opt/airflow/dags/scripts/bash/connect.sh {profiles_dir} {project_dir}"
+    )
+
+    # Model staging data in a data warehouse
+    stg_model_file = "models/staging/stg_bike_trips.sql"
+    model_stg_bike_trips = BashOperator(
+        task_id="model_stg_bike_trips", 
+        bash_command=f"/opt/airflow/dags/scripts/bash/model.sh {stg_model_file} {profiles_dir} {project_dir}"
+    )
+
+    # Test staging data in a data warehouse
+    test_stg_bike_trips = BashOperator(
+        task_id="test_stg_bike_trips", 
+        bash_command=f"/opt/airflow/dags/scripts/bash/test_model.sh {stg_model_file} {profiles_dir} {project_dir}"
+    )
+
+    # Model fact data in a data warehouse
+    fact_model_file = "models/core/fact_bike_trips.sql"
+    model_fact_bike_trips = BashOperator(
+        task_id="model_fact_bike_trips", 
+        bash_command=f"/opt/airflow/dags/scripts/bash/model.sh {fact_model_file} {profiles_dir} {project_dir}"
+    )
+
+    extract_nyc_citi_bike >> nyc_citi_bike_to_raw_data_lake >> \
+    transform_raw_nyc_citi_bike >> nyc_citi_bike_to_staging_data_lake >> \
+    nyc_citi_bike_to_data_warehouse >> connection_to_data_warehouse >> \
+    model_stg_bike_trips >> test_stg_bike_trips >> model_fact_bike_trips
 
 nyc_citi_bike = ingest_nyc_citi_bike()
