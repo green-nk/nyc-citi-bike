@@ -66,6 +66,7 @@ How to setup Airflow as a workflow orchestration tool:
     # Enter bash terminal on that container
     docker exec -it <container-id-or-container-name> bash
     ```
+    (Optional) You can setup VSCode for attaching a running container, using dev containers extension.
 
 * Run Airflow DAG manually on the specific execution date
     ```bash
