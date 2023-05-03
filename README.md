@@ -36,10 +36,11 @@ The following tools were used in this project:
 To run this project you will need to:
 
 1. Clone the project repository from GitHub.
-2. Setup your [GCP project](terraform/README.md).
-3. Setup the necessary services: [Terraform](terraform/README.md) and [Airflow](airflow/README.md).
-4. Setup your [dbt project](airflow/dags/dbt/nyc_citi_bike/README.md).
-5. Run the project by executing the DAGs in Airflow.
+2. Setup [SSH connection](terraform/README.md#setup-ssh-access-on-local-machine) on a local machine.
+3. Setup your [GCP project](terraform/README.md#setup-gcp-project).
+4. Setup the necessary services: [Terraform](terraform/README.md#setup-infrastructure-with-terraform) and [Airflow](airflow/README.md).
+5. Setup your [dbt project](airflow/dags/dbt/nyc_citi_bike/README.md).
+6. Run the project by executing the DAGs in Airflow.
 
 
 ## Possible Improvement 💡
