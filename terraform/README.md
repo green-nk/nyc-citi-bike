@@ -7,11 +7,11 @@ How to setup infrastructure for this project using terraform:
 
 ## Initial Setup
 ### Setup SSH Access on Local Machine
-1. Create ssh key connection
+1. Create ssh key connection.
     ```bash
     ssh-keygen -f <ssh-private-keyfile> -C <vms-username>
     ```
-2. Build a `config` file to be easier to access to GCE instances (optional)
+2. Build a `config` file to be easier to access to GCE instances (optional).
     ```bash
     Host <ssh-connection-name>
         HostName <host-ip-address>
@@ -21,17 +21,16 @@ How to setup infrastructure for this project using terraform:
 
 
 ### Setup GCP Project
-1. Setup [GCP account](https://cloud.google.com/free)
-2. Setup your [GCP project](https://console.cloud.google.com/)
+1. Setup [GCP account](https://cloud.google.com/free).
+2. Setup your [GCP project](https://console.cloud.google.com/).
     * e.g. Using "dtc-de" as a project name and GCP will generate a unique project ID to be used later.
-3. Setup a [service account](https://cloud.google.com/docs/authentication/getting-started)
+3. Setup a [service account](https://cloud.google.com/docs/authentication/getting-started).
     * Grant `BigQuery Admin`, `Compute Admin`, `Service Account User`, `Storage Admin`, `Storage Object Admin` and `Viewer` roles to get a service account email to be used later.
-    * Download a service account key json file for authentication to be used later.
-    * You can use `scp <source-path> <user>@<host>:<target-path>` to copy key file to your GCE to be used for authentication after finish setting up infrastructure.
+    * Download a service account key json file for authentication to be used later. Also, you can use `scp <source-path> <user>@<host>:<target-path>` to copy key file to your GCE to be used for authentication after finish setting up infrastructure.
 
 
 ### Setup Infrastructure with terraform
-1. Setup a terraform input variable file in a terraform folder. See list of [regions and zones](https://cloud.google.com/compute/docs/regions-zones)
+1. Setup a terraform input variable file in a terraform folder. See list of [regions and zones](https://cloud.google.com/compute/docs/regions-zones).
     ```tfvars
     project_id = <gcp-project-id>
     region = <gcp-region>
@@ -59,7 +58,7 @@ How to setup infrastructure for this project using terraform:
         -var="service_account_email=<service-account-email>"
     ```
 
-5. (Optional) Test a connection to VMs from a local machine
+5. (Optional) Test a connection to VMs from a local machine.
     ```bash
     # Using ssh connection
     ssh -i <path/to/ssh-private-keyfile> <vms-username>@<host-ip-address>
@@ -95,7 +94,7 @@ ssh-add <path/to/ssh-private-keyfile>
 # (Optional) Test ssh connection to GitHub
 ssh -T git@github.com
 ```
-(Optional) In case you don't want to add an existing ssh key manually everytime you logging into GCE, Configure a `.bashrc` file to add this step autmatically.
+(Optional) In case you don't want to add an existing ssh key manually everytime you logging into GCE, Configure a `.bashrc` file to add this step automatically.
 
 
 ## Reference
