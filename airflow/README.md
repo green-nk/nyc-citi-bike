@@ -99,6 +99,8 @@ Need help? using `airflow cheat-sheet` as a starting point of reference. Note th
     docker compose down --volumes --remove-orphans
     ```
 
+> **Note**: Exception on uploading compressed parquet file might occur. as the following `Error while reading data, error message: Input file is not in Parquet format` or `Can not reuploading to GCS`. If so, delete existing files before reuploading or try not to compress a parquet file store it as is.
+
 > **Note**: `psycopg2.errors.DeadlockDetected: deadlock detected` Exception might occur from time to time. though, this doesn't affect the data pipeline.
 
 
