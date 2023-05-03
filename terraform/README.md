@@ -27,10 +27,11 @@ How to setup infrastructure for this project using terraform:
 3. Setup a [service account](https://cloud.google.com/docs/authentication/getting-started)
     * Grant `BigQuery Admin`, `Compute Admin`, `Service Account User`, `Storage Admin`, `Storage Object Admin` and `Viewer` roles to get a service account email to be used later.
     * Download a service account key json file for authentication to be used later.
+    * You can use `scp <source-path> <user>@<host>:<target-path>` to copy key file to your GCE to be used for authentication after finish setting up infrastructure.
 
 
 ### Setup Infrastructure with terraform
-1. Setup a terraform input variable file. See list of [regions and zones](https://cloud.google.com/compute/docs/regions-zones)
+1. Setup a terraform input variable file in a terraform folder. See list of [regions and zones](https://cloud.google.com/compute/docs/regions-zones)
     ```tfvars
     project_id = <gcp-project-id>
     region = <gcp-region>
@@ -98,5 +99,5 @@ ssh -T git@github.com
 
 
 ## Reference
-[Setup Resources with Terraform on GCP](https://registry.terraform.io/providers/hashicorp/google/latest/docs/guides/getting_started)
-[Setup SSH Connection to GitHub](https://docs.github.com/en/authentication/connecting-to-github-with-ssh)
+* [Setup Resources with Terraform on GCP](https://registry.terraform.io/providers/hashicorp/google/latest/docs/guides/getting_started)
+* [Setup SSH Connection to GitHub](https://docs.github.com/en/authentication/connecting-to-github-with-ssh)
