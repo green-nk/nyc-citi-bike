@@ -58,8 +58,8 @@ resource "google_compute_instance" "vm_instance" {
       "source ~/.bashrc", 
       "conda create -y --name ${var.environment_name} python=3.9.7", 
       "conda activate ${var.environment_name}", 
-      "conda install -y -c conda-forge numpy pandas matplotlib notebook", 
-      "pip install apache-airflow apache-airflow-providers-google gcsfs"
+      "conda install -y -c conda-forge numpy=1.22.3 pandas=1.5.3 matplotlib=3.7.1 notebook=6.5.4", 
+      "pip install apache-airflow==2.5.3 apache-airflow-providers-google==10.0.0 gcsfs==2023.4.0 dbt-core==1.5.0 dbt-bigquery==1.5.0"
     ]
   }
 
