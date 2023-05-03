@@ -31,11 +31,11 @@ How to setup Airflow as a workflow orchestration tool:
 5. Create an environment variable json file in a variables folder.
     ```json
     {
-        "project_id": <gcp-project-id>, 
-        "gcs_bucket": <gcs-bucket-name>, 
-        "bq_dataset": <bq-dataset-name>, 
-        "bq_dst_table_name": <bq-dst-table-name>, 
-        "dbt_project": <dbt-project-name>
+        "project_id": "<gcp-project-id>", 
+        "gcs_bucket": "<gcs-bucket-name>", 
+        "bq_dataset": "<bq-dataset-name>", 
+        "bq_dst_table_name": "<bq-dst-table-name>", 
+        "dbt_project": "<dbt-project-name>"
     }
     ```
 
