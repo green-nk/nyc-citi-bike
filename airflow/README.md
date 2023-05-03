@@ -39,7 +39,17 @@ How to setup Airflow as a workflow orchestration tool:
     }
     ```
 
-6. Setup environment variables and connection on Airflow. Note that Airflow uses `google_cloud_default` as a default connection ID for GCP.
+6. In order to setup environment variables and connection on Airflow, First, you need to enter an `airflow-webserver` container.
+    ```bash
+    # Check container id or container name
+    docker ps
+
+    # Enter bash terminal on that container
+    docker exec -it <container-id-or-container-name> bash
+    ```
+    (Optional) You can setup VSCode for attaching a running container, using dev containers extension.
+
+7. In an `airflow-webserver` container, Use Airflow commands to finish setting up services as necessary. Note that Airflow uses `google_cloud_default` as a default connection ID for GCP.
     ```bash
     # Add environment variables
     airflow variables import <path/to/environment-variables-file.json>
@@ -53,21 +63,15 @@ How to setup Airflow as a workflow orchestration tool:
         --conn-extra '{"extra__google_cloud_platform__project": <gcp-project-id>, "extra__google_cloud_platform__key_path": <path/to/keyfile.json>}'
     ```
     Airflow provides web UI on `localhost:8080` which you can setup environment variables and connection there as well.
-    
-> **Note**: Please check mounted volume before running Docker Compose. In case some required files are missing.
+
+8. (Optional) Stop Airflow services using `docker compose down`.
+
+> **Note**: After first-time setup, Run only step 4 to start services.
+
+> **Caution**: Please check mounted volume before running Docker Compose. In case some required files are missing.
 
 
 ## How to Run Airflow DAGs
-* First, you need to enter an `airflow-webserver` container to use airflow command
-    ```bash
-    # Check container id or container name
-    docker ps
-
-    # Enter bash terminal on that container
-    docker exec -it <container-id-or-container-name> bash
-    ```
-    (Optional) You can setup VSCode for attaching a running container, using dev containers extension.
-
 * Run Airflow DAG manually on the specific execution date
     ```bash
     airflow dags trigger <dag-id> -e <execution-date>
@@ -76,7 +80,7 @@ How to setup Airflow as a workflow orchestration tool:
     ```bash
     airflow dags test <dag-id> <execution-date>
     ```
-* Backfill data by running DAGs on different execution dates despite of setting `catchup` to False.
+* Backfill data by running DAGs on different execution dates despite of setting `catchup` to False. Note that using `--reset-dagruns` just to start backfilling it from scratch only.
     ```bash
     airflow dags backfill <dag-id> --reset-dagruns -s <start-date> -e <end-date>
     ```
@@ -87,7 +91,7 @@ Need help? using `airflow cheat-sheet` as a starting point of reference. Note th
 ## Troubleshooting
 * Restart services from scratch.
     ```bash
-    # Reset PG database that stored meta data, doing this in a container
+    # Reset PG database that stored meta data, doing this in an airflow-webserver container
     airflow db reset
     ```
     ```bash
