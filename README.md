@@ -50,3 +50,4 @@ To run this project you will need to:
 * Implement automated data quality checks to ensure data consistency and accuracy throughout the pipeline using [Great Expectations](https://www.youtube.com/watch?v=9iN6iw7Lamo&t=932s).
 * Implement data privacy and security measures, such as data masking, encryption, or access controls, to protect sensitive data.
 * Add CI/CD to the pipeline to make it more rigid using [GitHub Actions](https://www.youtube.com/watch?v=R8_veQiYBjI&t=1710s).
+* Use this [Makefile](https://github.com/josephmachado/beginner_de_project/blob/master/Makefile) as a starting point to create one for running this project.
